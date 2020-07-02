@@ -407,9 +407,9 @@ ReactDOM.render(
 : 리액트 프로젝트 내부에서 DOM에 이름을 다는 방법.
 
 DOM을 꼭 직접적으로 건드려야 할 때 사용.<br>
-1. 특정 input에 포커스 주기
-2. 스크롤 박스 조작하기
-3. Canvas 요소에 그림 그리기
+1. 포커스, 텍스트 선택 영역, 혹은 미디어의 재생을 관리할 때.
+2. 애니메이션을 직접적으로 실행시킬 때.
+3. 서드 파티 DOM 라이브러리를 React와 같이 사용할 때.
 
 > ref 만드는 방법
 
@@ -450,4 +450,189 @@ class RefSample extends Component {
 />
 ```
 
+# 컴포넌트 반복
+
+> map 함수
+
+: 파라미터로 전달된 함수를 사용 =><br>
+배열 내 각 요소를 원하는 규칙에 따라 변환 =><br>
+그 결과로 새로운 배열 생성.
+
+arr.map(callback, [thisArg])
+
+• callback: 새로운 배열의 요소를 생성하는 함수.
+   - currentValue: 현재 처리하고 있는 요소
+   - index: 현재 처리하고 있는 요소의 index 값
+   - array: 현재 처리하고 있는 원본 배열<br>
+
+• thisArg(선택 항목): callback 함수 내부에서 사용할 this 레퍼런스
+
+> key
+
+: 컴포넌트 배열을 렌더링했을 때 어떤 원소에 변동이 있었는지 알아내려고 사용.
+(key값은 언제나 유일해야 한다.)
+
+고유한 값이 없을 때 index 값을 key로 사용. (하지만 리렌더링 비효율적.)
+
+<strong>초기 상태 설정</strong>
+
+1. 데이터 배열
+2. 텍스트를 입력할 수 있는 input의 상태
+3. 새로운 항목을 추가할 때 사용할 고유 id를 위한 상태
+
+불변성 유지: 리액트에서 상태를 업데이트할 때는 기존 상태를 그대로 두면서 새로운 값을 상태로 설정해야 함.
+
+배열의 특정 항목 추가 : concat 함수, 배열의 특정 항목 삭제: filter 함수.
+
+# 라이프사이클 메서드 (수명 주기)
+
+컴포넌트의 수명은 페이지에 렌더링되기 전인 준비과정에서 시작, 페이지에서 사라질 때 종료.
+
+라이프사이클 메서드 (9가지)
+1. Will 접두사: 어떤 작업 작동 전 실행 메서드.
+2. Did 접두사: 어떤 작업 작동 후 실행 메서드.
+
+- 마운트: 페이지에 컴포넌트가 나타남.
+- 업데이트: 컴포넌트 정보를 업데이트.
+- 언마운트: 페이지에서 컴포넌트가 사라짐.
+
+> 마운트
+
+```
+컴포넌트 만들기 =>
+constructor: 컴포넌트를 새로 만들 때마다 호출되는 클래스 생성자 메서드 =>
+getDerivedStateFromProps: props에 있는 값을 state에 넣을 때 사용하는 메서드 =>
+render: 우리가 준비한 UI를 렌더링하는 메서드 =>
+componentDidMount: 컴포넌트가 웹 브라우저상에 나타난 후 호출하는 메서드
+```
+
+> 업데이트
+
+1. props 바뀔 때
+2. state 바뀔 때
+3. 부모 컴퍼넌트 리렌더링될 때
+4. this.forceUpdate로 강제로 렌더링을 트리거할 때
+
+```
+업데이트 발생 요인 =>
+getDerivedStateFromProps: props의 변화에 따라 state 값에도 변화를 주고 싶을 때 사용 =>
+shouldComponentUpdate: 컴포넌트가 리렌더링을 해야 할지 말아야 할지를 결정하는 메서드. true 반환 시 render 호출, false 반환 시 여기서 작업 취소 (this.forceUpdate() 호출 시 생략 후 render 함수 호출) =>
+render: 컴포넌트 리렌더링 =>
+getSnapshotBeforeUpdate: 컴포넌트 변화를 DOM에 반영하기 바로 직전에 호출하는 메서드 =>
+componentDidUpdate: 컴포넌트의 업데이트 작업이 끝난 후 호출하는 메서드
+```
+
+> 언마운트
+
+```
+언마운트 하기 => componentWillUnmount
+```
+
+componentWillUnmount: 컴포넌트가 웹 브라우저상에서 사라지기 전에 호출하는 메서드.
+
+> 라이프사이클 메서드
+
+<strong>render() 함수</strong>
+
+```
+render() { ... }
+```
+
+컴포넌트 모양새 정의.<br>
+라이프사이클 메서드 중 유일한 필수 메서드.<br>
+이 메서드 안에서 this.props와 this.state에 접근할 수 있으며, 리액트 요소를 반환.(div 태그나 따로 선언한 컴포넌트)<br>
+이벤트 설정이 아닌 곳에서 setState 사용 불가, 브라우저의 DOM에 접근도 안됨. (처리하고자 할 때는 componentDidMount에서)
+
+<strong>constructor() 메서드</strong>
+
+```
+constructor(props) { ... }
+```
+
+컴포넌트의 생성자 메서드.<br>
+초기 state 설정 가능.
+
+<strong>getDerivedStateFromProps 메서드</strong>
+
+```react
+static getDerivedStateFromProps(nextProps, prevState) {
+    if(nextProps.value != = prevState.value) { // 조건에 따라 특정 값 동기화
+      return { value: nextProps.value };
+    }
+    return null; // state를 변경할 필요가 없다면 null을 반환
+}
+```
+
+ props로 받아 온 값을 state에 동기화시키는 용도.<br>
+ 컴포넌트가 마운트될 때와 업데이트될 때 호출.
+
+ <strong>componentDidMount 메서드</strong>
+
+ ```
+ componentDidMount() { ... }
+ ```
+
+컴포넌트를 만들고, 첫 렌더링을 다 마친 후 실행.<br>
+다른 자바스크립트 라이브러리 또는 프레임워크의 함수를 호출하거나 이벤트 등록, setTimeout, setInterval, 네트워크 요청 같은 비동기 작업을 처리.
+
+<strong>shouldComponentUpdate 메서드</strong>
+
+ ```
+shouldComponentUpdate(nextProps, nextState) { ... }
+ ```
+
+ props 또는 state를 변경했을 때, 리렌더링을 시작할지 여부를 지정하는 메서드.<br>
+ 반드시 true 값 또는 false 값을 반환해야 하고, false 값 반환 시 업데이트 중지. (기본적으로 true값 반환)<br>
+이 메서드 안에서 현재 props와 state는 this.props와 this.state로 접근하고, 새로 설정될 props 또는 state는 nextProps와 nextState로 접근.
+
+<strong>getSnapshotBeforeUpdate 메서드</strong>
+
+ ```react
+getSnapshotBeforeUpdate(prevProps, prevState) {
+    if(prevState.array != = this.state.array) {
+    const { scrollTop, scrollHeight } = this.list
+      return { scrollTop, scrollHeight };
+    }
+}
+ ```
+
+render에서 만들어진 결과물이 브라우저에 실제로 반영되기 직전에 호출.<br>
+이 메서드에서 반환하는 값은 componentDidUpdate에서 세 번째 파라미터인 snapshot 값.<br>
+업데이트하기 직전의 값을 참고할 일이 있을 때 활용.
+
+<strong>componentDidUpdate 메서드</strong>
+
+ ```
+ componentDidUpdate(prevProps, prevState, snapshot) { ... }
+ ```
+
+ 리렌더링 완료 후 실행.<br>
+ DOM 관련 처리 가능.<br>
+ prevProps 또는 prevState를 사용하여 컴포넌트가 이전에 가졌던 데이터에 접근 가능.<br>
+ getSnapshotBeforeUpdate에서 반환한 값이 있다면 여기서 snapshot 값을 전달받음.
+
+ <strong>componentWillUnmount 메서드</strong>
+
+ ```
+ componentWillUnmount() { ... }
+ ```
+
+컴포넌트를 DOM에서 제거할 때 실행. (componentDidMount에서 등록한 이벤트, 타이머, 직접 생성한 DOM)
+
+<strong>componentDidCatch 메서드</strong>
+
+ ```react
+ componentDidCatch(error, info) {
+  this.setState({
+    error: true
+  });
+  console.log({ error, info });
+}
+ ```
+
+컴포넌트 렌더링 도중에 에러가 발생했을 때 오류 UI 보여줌.<br>
+error: 파라미터에 어떤 에러 발생했는지.<br>
+info: 어디에 있는 코드에서 오류가 발생했는지.<br>
+서버 API를 호출하여 따로 수집 가능.<br>
+컴포넌트 자신에게 발생하는 에러를 잡아낼 수 X, 자신의 this.props.children으로 전달되는 컴포넌트에서 발생하는 에러만 잡아낼 수 O.
 
