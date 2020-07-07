@@ -113,7 +113,8 @@ props = 컴포넌트 속성을 설정할 때 사용하는 요소.
 props 값은 해당 컴포넌트를 불러와 사용하는 부모 컴포넌트에서 설정 가능.    
 컴포넌트 자신은 해당 props를 읽기 전용으로만 사용 가능하므로 props를 바꾸려면 부모 컴포넌트에서 변경해야 함.
 
-ex)
+<strong>example</strong>
+
 ```react
 const MyComponent = props => {
 return <div>안녕하세요, 제 이름은 {props.name}입니다.</div>;
@@ -423,7 +424,8 @@ ref를 달고자 하는 요소에 ref라는 콜백 함수를 props로 전달 =><
 
 <strong>2. createRef 함수 사용</strong>
 
-ex)
+<strong>example</strong>
+
 ```react
 class RefSample extends Component {
   input = React.createRef(); // 컴포넌트 내부에서 멤버 변수로 React.createRef()를 담아주기.
@@ -636,3 +638,458 @@ info: 어디에 있는 코드에서 오류가 발생했는지.<br>
 서버 API를 호출하여 따로 수집 가능.<br>
 컴포넌트 자신에게 발생하는 에러를 잡아낼 수 X, 자신의 this.props.children으로 전달되는 컴포넌트에서 발생하는 에러만 잡아낼 수 O.
 
+# Hooks
+
+> useState
+
+이 함수의 파라미터에는 상태의 기본 값.<br>
+함수 호출 시 배열 반환 => 첫 번째 원소: 상태 값, 두 번째 원소: 상태 설정 함수.<br>
+파라미터 넣어서 호출 시 전달 받은 파라미터로 값 변하고 컴포넌트 리렌더링.
+
+> useEffect
+
+리액트 컴포넌트가 렌더링될 때마다 특정 작업을 수행하도록 설정할 수 있는 Hook.<br>
+클래스형 컴포넌트의 componentDidMount + componentDidUpdate 형태.
+
+<strong>마운트될 때만 실행하고 싶을 때</strong>
+
+useEffect에서 설정한 함수를 컴포넌트가 화면에 맨 처음 렌더링될 때만 실행하고, 업데이트될 때는 X => 함수의 두 번째 파라미터로 비어 있는 배열 추가.
+
+```react
+useEffect(() => {
+    console.log('마운트될 때만 실행됩니다.');
+  }, []);
+  ```
+
+<strong>특정 값이 업데이트될 때만 실행하고 싶을 때</strong>
+
+useEffect의 두 번째 파라미터로 전달되는 배열 안에 검사하고 싶은 값 추가.
+
+```react
+useEffect(() => {
+  console.log(name);
+}, [name]);
+```
+<strong>컴포넌트가 언마운트되기 전이나 업데이트되기 직전에 어떠한 작업을 수행하고 싶다면 => 뒷정리(cleanup) 함수를 반환.</strong>
+
+```react
+useEffect(() => {
+  console.log('effect');
+  console.log(name);
+  return () => {
+    console.log('cleanup');
+    console.log(name);
+  };
+});
+```
+
+언마운트될 때만 뒷정리 함수를 호출.
+
+```react
+useEffect(() => {
+  console.log('effect');
+  console.log(name);
+  return () => {
+    console.log('cleanup');
+    console.log(name);
+  };
+}, []);
+```
+
+> useReducer
+
+: useState보다 더 다양한 컴포넌트 상황에 따라 다양한 상태를 다른 값으로 업데이트해 주고 싶을 때 사용하는 Hook.
+
+현재 상태, 그리고 업데이트를 위해 필요한 정보를 담은 액션 값을 전달받아 새로운 상태를 반환하는 함수.<br>
+리듀서 함수에서 새로운 상태를 만들 때는 반드시 불변성을 지켜 주어야 함.
+
+```react
+function reducer(state, action) {
+return { ... }; // 불변성을 지키면서 업데이트한 새로운 상태 반환.
+}
+```
+
+액션 값
+```react
+{
+  type: 'INCREMENT',
+  // 다른 값들은 필요 시 추가.
+}
+```
+
+useReducer의 첫 번째 파라미터: 리듀서 함수, 두 번째 파라미터: 해당 리듀서의 기본값.
+
+state는 현재 가리키고 있는 상태고, dispatch는 액션을 발생시키는 함수.
+
+컴포넌트 업데이트 로직을 컴포넌트 바깥으로 빼낼 수 있다는 것이 장점.
+
+> useMemo
+
+useMemo Hook을 사용하면 함수형 컴포넌트 내부에서 발생하는 연산을 최적화.<br> 렌더링하는 과정에서 특정 값이 바뀌었을 때만 연산을 실행하고, 원하는 값이 바뀌지 않았다면 이전에 연산했던 결과를 다시 사용하는 방식.
+
+> useCallback
+
+렌더링 성능을 최적화해야 하는 상황에서 사용.<br>
+이벤트 핸들러 함수를 필요할 때만 생성.
+
+ 첫 번째 파라미터: 생성하고 싶은 함수, 두 번째 파라미터에는 배열.<br>
+ 비어있는 배열 => 컴포넌트가 렌더링될 때 단 한 번만 함수가 생성.
+
+<strong>example</strong>
+
+```react
+useCallback(() => {
+  console.log('hello world!');
+}, []) // 배열 안에 내용 추가시 인풋 내용이 바뀌거나 새로운 항목이 추가될 때마다 함수가 생성.
+ 
+useMemo(() => {
+  const fn = () => {
+    console.log('hello world!');
+  };
+  return fn;
+}, [])
+```
+
+숫자, 문자열, 객체처럼 일반 값을 재사용하려면 useMemo를 사용하고, 함수를 재사용하려면 useCallback을 사용.
+
+> useRef
+
+useRef Hook은 함수형 컴포넌트에서 ref를 쉽게 사용 가능하게 만들어준다.<br>
+useRef를 사용하여 ref 설정 시 useRef를 통해 만든 객체 안의 current 값이 실제 엘리먼트를 가리킨다.
+
+컴포넌트 로컬 변수를 사용할 때도 이용 가능.<br>
+로컬 변수: 렌더링과 상관없이 바뀔 수 있는 값.
+
+<strong>example</strong>
+
+```react
+// 클래스형 컴포넌트
+import React, { Component } from 'react';
+ 
+class MyComponent extends Component {
+  id = 1
+  setId = (n) => {
+    this.id = n;
+  }
+  printId = () => {
+    console.log(this.id);
+  }
+  render() {
+    return (
+      <div>
+        MyComponent
+      </div>
+    );
+  }
+}
+ 
+export default MyComponent;
+
+// 함수형 컴포넌트
+import React, { useRef } from 'react';
+ 
+const RefSample = () => {
+  const id = useRef(1);
+  const setId = (n) => {
+    id.current = n;
+  }
+  const printId = () => {
+    console.log(id.current);
+  }
+  return (
+    <div>
+      refsample
+    </div>
+  );
+};
+ 
+export default RefSample;
+```
+
+ref 안의 값이 바뀌어도 컴포넌트가 렌더링되지 않으므로 렌더링과 관련되지 않은 값을 관리할 때만 사용.
+
+# 컴포넌트 스타일링
+
+• 일반 CSS: 컴포넌트를 스타일링하는 가장 기본적인 방식.<br>
+• Sass: 자주 사용되는 CSS 전처리기(pre-processor) 중 하나로 확장된 CSS 문법을 사용하여 CSS 코드 더욱 쉽게 작성 가능.<br>
+• CSS Module: 스타일을 작성할 때 CSS 클래스가 다른 CSS 클래스의 이름과 절대 충돌하지 않도록 파일마다 고유한 이름을 자동으로 생성해 주는 옵션.<br>
+• styled-components: 스타일을 자바스크립트 파일에 내장시키는 방식으로 스타일을 작성함과 동시에 해당 스타일이 적용된 컴포넌트 생성.<br>
+
+> CSS를 작성할 때 중요한 점
+
+CSS 클래스를 중복되지 않게 만드는 것.
+1. 이름을 지을 때 특별한 규칙을 사용하여 짓는 것.
+2.  CSS Selector를 활용하는 것.
+
+컴포넌트 이름-클래스 형태.<br>
+BEM 네이밍: CSS 방법론 중 하나로, 이름을 지을 때 일종의 규칙을 준수하여 해당 클래스가 어디에서 어떤 용도로 사용되는지 명확하게 작성하는 방식.
+
+> CSS Selector
+
+CSS 클래스가 특정 클래스 내부에 있는 경우에만 스타일을 적용 가능.<br>
+컴포넌트의 최상위 html 요소에는 컴포넌트의 이름으로 클래스 이름을 짓고, 그 내부에서는 소문자를 입력하거나, header 같은 태그를 사용. (불필요한 경우 생략)
+
+> Sass(Syntactically Awesome Style Sheets): CSS 전처리기.
+
+1. 복잡한 작업을 쉽게 할 수 있도록 만들어준다.
+2. 스타일 코드의 재활용성을 높여준다.
+3. 코드의 가독성을 높여서 유지 보수를 더욱 쉽게 해준다.
+
+> CSS Module
+
+: CSS를 불러와서 사용할 때 클래스 이름을 고유한 값, 즉 [파일 이름]_[클래스 이름]__[해시값] 형태로 자동으로 만들어서 컴포넌트 스타일 클래스 이름이 중첩되는 현상을 방지해 주는 기술.
+
+해당 클래스는 우리가 방금 만든 스타일을 직접 불러온 컴포넌트 내부에서만 작동.<br>
+웹 페이지에서 전역적으로 사용되는 경우라면 :global을 앞에 입력.
+
+고유한 클래스 이름을 사용하려면 클래스를 적용하고 싶은 JSX 엘리먼트에 className= {styles.[클래스 이름]} 형태로 전달.
+
+classnames: CSS 클래스를 조건부로 설정시 사용하는 라이브러리.
+
+<strong>example</strong>
+
+```react
+import classNames from 'classnames';
+ 
+classNames('one', 'two'); // = 'one two'
+classNames('one', { two: true }); // = 'one two'
+classNames('one', { two: false }); // = 'one'
+classNames('one', ['two', 'three']); // = 'one two three'
+ 
+const myClass = 'hello';
+classNames('one', myClass, { myCondition: true }); // = 'one hello myCondition'
+```
+
+props 값에 따라 다른 스타일 제공 용이.
+
+<strong>example</strong>
+```react
+const MyComponent = ({ highlighted, theme }) => (
+  <div className={classNames('MyComponent', { highlighted }, theme)}>Hello</div> // 엘리먼트의 클래스에 highlighted 값이 true이면 highlighted 클래스가 적용, false이면 적용 X.
+);
+```
+
+내장되어 있는 bind 함수를 사용 시 cx('클래스 이름', '클래스 이름2') 형태로 사용 가능.
+
+> CSS-in-JS
+
+: 자바스크립트 파일 안에 스타일을 선언하는 방식.
+
+styled-components를 사용하면 자바스크립트 파일 하나에 스타일까지 작성할 수 있기 때문에 .css 또는 .scss 확장자를 가진 스타일 파일을 따로 만들지 않아도 됨.
+
+styled-components와 일반 classNames를 사용하는 CSS/Sass를 비교했을 때, 가장 큰 장점은 props 값으로 전달해 주는 값을 쉽게 스타일에 적용 가능하다는 것.
+
+Tagged 템플릿 리터럴 : `을 사용하여 만든 문자열에 스타일 정보를 줌.<br>
+이러한 속성을 사용하여 styled-components로 만든 컴포넌트의 props를 스타일 쪽에서 쉽게 조회 할 수 있게 만들어 줌.
+
+스타일링된 엘리먼트 만들기.
+
+<strong>example</strong>
+
+```react
+import styled from 'styled-components';
+ 
+const MyComponent = styled.div`
+  font-size: 2rem;
+`;
+```
+
+사용해야 할 태그명이 유동적이거나 특정 컴포넌트 자체에 스타일링해 주고 싶은 경우.
+
+<strong>example</strong>
+
+```react
+// 태그의 타입을 styled 함수의 인자로 전달
+const MyInput = styled('input')`
+  background: gray;
+`
+// 아예 컴포넌트 형식의 값을 넣어 줌
+const StyledLink = styled(Link)`
+  color: blue;
+`
+```
+
+컴포넌트를 styled의 파라미터에 넣는 경우에는 해당 컴포넌트에 className props를 최상위 DOM의 className 값으로 설정하는 작업이 내부적으로 되어 있어야 함.
+
+<strong>example</strong>
+
+```react
+const Sample = ({ className }) => {
+  return <div className={className}>Sample</div>;
+};
+ 
+const StyledSample = styled(Sample)`
+  font-size: 2rem;
+`;
+```
+
+styled-components를 사용하면 스타일 쪽에서 컴포넌트에게 전달된 props 값을 참조 가능.
+
+<strong>example</strong>
+
+```react
+const Box = styled.div`
+  /* props로 넣어 준 값을 직접 전달해 줄 수 있습니다. */
+  background: ${props => props.color || 'blue'};
+  padding: 1rem;
+  display: flex;
+`;
+```
+
+props에 따른 조건부 스타일링
+
+<strong>example</strong>
+
+```react
+/* 다음 코드는 inverted 값이 true일 때 특정 스타일을 부여해 줍니다. */
+  ${props =>
+    props.inverted &&
+    css`
+      background: none;
+      border: 2px solid white;
+      color: white;
+      &:hover {
+        background: white;
+        color: black;
+      }
+    `};
+```
+
+styled-components 매뉴얼에서 제공하는 유틸 함수 => size 객체에 따라 자동으로 media 쿼리 함수를 만들어준다.
+
+<strong>example</strong>
+
+```react
+const media = Object.keys(sizes).reduce((acc, label) => {
+acc[label] = (...args) => css`
+  @media (max-width: ${sizes[label] / 16}em) {
+    ${css(...args)};
+    }
+`;
+ 
+return acc;
+}, {});
+```
+
+# TODOList Project
+
+주요 컴포넌트들
+1. TodoTemplate: 화면을 가운데에 정렬, 앱 타이틀(일정 관리)을 보여줌. children으로 내부 JSX를 props로 받아 와서 렌더링.
+2. TodoInsert: 새로운 항목을 입력, 추가할 수 있는 컴포넌트. state를 통해 인풋의 상태를 관리.
+3. TodoListItem: 각 할 일 항목에 대한 정보를 보여 주는 컴포넌트. todo 객체를 props로 받아 와서 상태에 따라 다른 스타일의 UI를 보여줌.
+4. TodoList: todos 배열을 props로 받아 온 후, 이를 배열 내장 함수 map을 사용해서 여러 개의 TodoListItem 컴포넌트로 변환하여 보여줌.
+
+
+# 컴포넌트 성능 최적화
+
+컴포넌트는 다음 같은 상황에서 리렌더링 발생.
+1. 자신이 전달받은 props가 변경될 때.
+2. 자신의 state가 바뀔 때.
+3. 부모 컴포넌트가 리렌더링될 때.
+4. forceUpdate 함수가 실행될 때.
+
+React.memo를 사용하여 컴포넌트 성능 최적화.
+
+todos 배열이 바뀔 때마다 함수가 새로 만들어지는 상황을 방지하는 방법.
+1. useState의 함수형 업데이트 기능을 사용하는 것.
+2. useReducer를 사용하는 것.
+
+함수형 업데이트: setTodos를 사용할 때 새로운 상태를 파라미터로 넣는 대신, 상태 업데이트를 어떻게 할지 정의해 주는 업데이트 함수를 넣는 것.
+
+<strong>프로덕션 모드로 구동하는 법</strong>
+
+$ yarn build<br>
+$ yarn global add serve<br>
+$ serve -s build
+
+> 불변성
+
+업데이트가 필요한 곳에서는 아예 새로운 배열 혹은 새로운 객체를 만들기 때문에, React.memo를 사용했을 때 props가 바뀌었는지 혹은 바뀌지 않았는지를 알아내서 리렌더링 성능을 최적화.
+
+불변성을 지킨다: 기존의 값을 직접 수정하지 않으면서 새로운 값을 만들어 내는 것.
+
+전개 연산자(... 문법)를 사용하여 객체나 배열 내부의 값을 복사 => 얕은 복사.
+
+객체 안 객체일 경우<br>
+<strong>example</strong>
+
+```react
+const nextComplexObject = {
+  ...complexObject,
+  objectInside: {
+    ...complexObject.objectInside,
+    enabled: false
+  }
+};
+console.log(complexObject === nextComplexObject); // false
+console.log(complexObject.objectInside === nextComplexObject.objectInside); // false
+```
+
+리스트 관련 컴포넌트를 작성할 때는 리스트 아이템과 리스트, 이 두 가지 컴포넌트를 최적화 해주어야 한다.
+
+> react-virtualized를 사용한 렌더링 최적화
+
+리스트 컴포넌트에서 스크롤되기 전에 보이지 않는 컴포넌트는 렌더링하지 않고 크기만 차지하게끔 할 수 있습니다. 그리고 만약 스크롤되면 해당 스크롤 위치에서 보여 주어야 할 컴포넌트를 자연스럽게 렌더링시키죠. 이 라이브러리를 사용하면 낭비되는 자원을 아주 쉽게 아낄 수 있습니다.
+
+# immer
+
+```react
+import produce from 'immer';
+const nextState = produce(originalState, draft => {
+  // 바꾸고 싶은 값 바꾸기
+  draft.somewhere.deep.inside = 5;
+})
+```
+
+조금 더 복잡한 데이터를 업데이트할 경우
+```react
+produce 함수<br> 첫 번째 파라미터: 수정하고 싶은 상태, 두 번째 파라미터: 상태를 어떻게 업데이트할지 정의하는 함수.
+
+두 번째 파라미터로 전달되는 함수 내부에서 원하는 값을 변경하면, produce 함수가 불변성 유지를 대신해 주면서 새로운 상태를 생성.
+
+import produce from 'immer';
+ 
+const originalState = [
+  {
+    id: 1,
+    todo: '전개 연산자와 배열 내장 함수로 불변성 유지하기',
+    checked: true,
+  },
+  {
+    id: 2,
+    todo: 'immer로 불변성 유지하기',
+    checked: false,
+  }
+];
+ 
+const nextState = produce(originalState, draft => {
+  // id가 2인 항목의 checked 값을 true로 설정
+  const todo = draft.find(t => t.id === 2); // id로 항목 찾기
+  todo.checked = true;
+    // 혹은 draft[1].checked = true;
+ 
+  // 배열에 새로운 데이터 추가
+  draft.push({
+    id: 3,
+    todo: '일정 관리 앱에 immmer 적용하기',
+    checked: false,
+  });
+ 
+  // id = 1인 항목을 제거하기
+  draft.splice(draft.findIndex(t => t.id === 1), 1);
+});
+```
+immer에서 제공하는 produce 함수 호출 시, 첫 번째 파라미터가 함수 형태라면 업데이트 함수를 반환.
+
+<strong>example</strong>
+```react
+const update = (draft => {
+  draft.value = 2;
+});
+const originalState = {
+  value: 1,
+  foo: 'bar',
+};
+const nextState = update(originalState);
+console.log(nextState); // { value: 2, foo: 'bar' }
+```
