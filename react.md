@@ -1093,3 +1093,165 @@ const originalState = {
 const nextState = update(originalState);
 console.log(nextState); // { value: 2, foo: 'bar' }
 ```
+
+# 리액트 라우터로 SPA 개발하기
+
+SPA: Single Page Application
+
+애플리케이션을 브라우저에 불러와서 실행 -> 사용자와의 인터랙션 발생 -> 해당 부분만 자바스크립트 사용하여 업데이트 (새로운 데이터 필요 시 서버 API 호출 -> 필요한 데이터만 사용)
+
+SPA 단점
+자바스크립트 파일 크기 커짐, 페이지 비어 있는 시간동안 흰 페이지 나타날 수도 O -> 서버 사이드 렌더링으로 해결 가능.
+
+BrowserRouter: 웹 애플리케이션에 HTMl5의 history API를 사용하여 새로고침없이 주소 변경, 현 주소 관련 정보를 props로 쉽게 조회하거나 사용 가능하게 해주는 것.
+
+Router 컴포넌트 사용하여 사용자의 현재 경로에 따라 다른 컴포넌트.
+
+```react
+<Route path="주소규칙" component={보여 줄 컴포넌트} />
+```
+
+> link
+
+`<a>` 와 같이 다른 주소 이동 역할이지만 페이지 전환 방지하여 렌더링된 컴포넌트들도 그대로.
+
+```react
+<Link to="주소">내용</Link>
+```
+
+> URL 파라미터와 쿼리
+
+페이지 주소 정의 시 유동적인 값을 전달할 때 사용.
+
+파라미터: 특정 아이디, 이름<br>
+쿼리: 키워드, 옵션 (location 객체에 들어있는 search 값에서 조회 가능)
+
+쿼리 location의 형태<br>
+<strong>example</strong>
+
+```react
+{
+"pathname": "/about",
+"search": "?detail=true",
+"hash": ""
+}
+```
+쿼리 문자열을 객체로 파싱하는 과정에서 결과 값은 언제나 문자열.
+
+> 서브 라우트
+
+라우트 내부에 또 라우트 정의.
+
+첫 번째 Route 컴포넌트에는 component 대신 render라는 props.
+컴포넌트 자체를 전달하는 것이 아니라, 보여 주고 싶은 JSX도 가능.
+1. 따로 컴포넌트를 만들기 애매한 상황에 사용,
+2. 컴포넌트에 props를 별도로 넣어 주고 싶을 때도 사용 가능.
+
+> 리액트 라우터 부가 기능
+
+- history: 컴포넌트 내에 구현하는 메서드에서 라우터 API 호출 가능.
+- withRouter: HoC, 라우트로 사용된 컴포넌트가 아니어도 match, location, history 객체 접근 가능.<br>
+withRouter를 사용하면 현재 자신을 보여 주고 있는 라우트 컴포넌트를 기준으로 match가 전달.
+- Switch: 여러 Route를 감싸서 그중 일치하는 단 하나의 라우트만을 렌더링. 모든 규칙과 일치하지 않을 때 보여 줄 Not Found 페이지 구현 가능.
+- NavLink: 현재 경로와 Link에서 사용하는 경로가 일치하는 경우 특정 스타일 혹은 CSS 클래스를 적용할 수 있는 컴포넌트.<br> 
+링크가 활성화되었을 때: activeStyle 값,<br>
+CSS 클래스를 적용할 때: activeClassName 값을 props.
+
+# 외부 API 연동하여 뉴스 뷰어
+
+웹 애플리케이션에서 서버 쪽 데이터 필요 -> Ajax 기법 사용 -> 서버 API 호출 -> 데이터 수신.
+
+동기적으로 처리시 데이터 수신 때까지 아무것도 못 하는데, 비동기적 처리시 동시에 여러 가지 요청 처리 가능 & 다른 함수도 호출 가능.
+
+> Promise
+
+: 콜백 반복 없게 도와주는 기능.
+
+```react
+function increase(number) {
+const promise = new Promise((resolve, reject) => {
+  // resolve는 성공, reject는 실패
+  setTimeout(() => {
+    const result = number + 10;
+    if (result > 50) {
+      // 50보다 높으면 에러 발생
+      const e = new Error('NumberTooBig');
+      return reject(e);
+    }
+    resolve(result); // number 값에 +10 후 성공 처리
+  }, 1000);
+});
+return promise;
+}
+
+increase(0)
+.then(number => {
+  // Promise에서 resolve된 값은 .then을 통해 받아 올 수 있음
+  console.log(number);
+  return increase(number); // Promise를 리턴하면
+})
+.then(number => {
+  // 또 .then으로 처리 가능
+  console.log(number);
+  return increase(number);
+})
+.catch(e => {
+  // 도중에 에러가 발생한다면 .catch를 통해 알 수 있음
+  console.log(e);
+});
+```
+
+> async/await
+
+함수 앞 async 사용, 함수 내부 promise 앞 await 사용 => Promise가 끝날 때까지 기다리고, 결과 값을 특정 변수에 넣을 수 O.
+(try, catch로 에러 처리)
+
+> axios로 API 호출 => 데이터 받기
+
+axios: 자바스크립트 HTTP 클라이언트. HTTP 요청을 Promise 기반으로 처리.<br>
+axios.get함수: 파라미터로 전달된 주소에 GET 요청, then으로 결과 확인 가능.(비동기적)
+
+뉴스 데이터가 지니고 있는 정보
+- title: 제목
+- description: 내용
+- url: 링크
+- urlToImage: 뉴스 이미지
+
+useEffect 사용하여 컴포넌트가 처음 렌더링되는 시점에 API 요청 => 컴포넌트가 화면에 보이는 시점에 API 요청. (useEffect에서 반환해야 하는 값은 뒷정리 함수이기 때문에 async 붙이면 X -> 사용하고 싶다면 async 붙은 다른 함수 만들어서 사용해야 함.)
+
+# Context API
+
+기존에는 최상위 컴포넌트에서 여러 컴포넌트를 거쳐 props로 원하는 상태와 함수를 전달했지만, Context API를 사용하면 Context를 만들어 단 한 번에 원하는 값을 받아 와서 사용 가능.
+
+> Render Props
+
+컴포넌트 사이에 중괄호를 열어서 함수 넣는 방법.<br>
+컴포넌트의 children이 있어야 할 자리에 일반 JSX 혹은 문자열이 아닌 함수 전달.
+
+<strong>example</strong>
+
+```react
+import React from 'react';
+ 
+const RenderPropsSample = ({ children }) => {
+  return <div>결과: {children(5)}</div>;
+};
+ 
+export default RenderPropsSample;
+```
+
+```react
+<RenderPropsSample>{value => 2 * value}</RenderPropsSample>;
+```
+
+RenderPropsSample에게 children props로 파라미터에 2를 곱해서 반환하는 함수를 전달하면 해당 컴포넌트에서는 이 함수에 5를 인자로 넣어서 10를 렌더링한다.
+
+> 동적 context
+
+Context value에는 상태 값이나 함수가 올 수 있다.
+
+createContext의 기본값은 실제 Provider의 value에 넣는 객체 형태와 일치시켜주는 것이 권장됨.<br>
+1. Context 코드를 볼 때 내부 값이 어떻게 구성되어 있는지 파악 용이.
+2. 실수로 Provider를 사용하지 않았을 때 리액트 애플리케이션에서 에러 발생 X.
+
+static contextType을 정의하면 클래스 메서드에서도 Context에 넣어 둔 함수를 호출할 수 있다. 하지만 한 클래스에서 하나의 Context밖에 사용하지 X.
