@@ -33,8 +33,21 @@ setTimeout(callback, 3000);
 - 마우스 이벤트(Mouse Event): 사용자가 마우스를 조작했을 때 발생하는 이벤트.<br>
 - 키 이벤트(Key Event): 사용자가 키보드를 조작했을 때 발생하는 이벤트.<br>
 
-
     addEventListener(): 다른 이벤트 핸들러를 덮어쓰지 X -> 이벤트 핸들러를 여러 개 추가 가능.<br>
+```html
+<script>
+var t = document.getElementById("form1");
+t.onsubmit = function a( ) {
+    console.log("from property");
+    return false;
+}
+function b( ) {
+        console.log("from addEventListener");
+        return false;
+    }
+    t.addEventListener("submit", b);
+</script>
+```
     removeEventListener(): 이벤트 핸들러를 삭제.
 
 클로저: 자바스크립트의 함수 + 함수가 선언될 때의 환경
