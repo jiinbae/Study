@@ -20,7 +20,10 @@ function add(x, y){
 add(3,5);
 ```
 
-- setTimeout(): 설정한 시간에 콜백 함수를 호출하는 함수.<br>
+- setTimeout(): 설정한 시간에 콜백 함수를 호출하는 함수.
+```javascript
+setTimeout(callback, 3000);
+```
 - setInterval(): 타이머(timer)를 설정하고 해당 시간이 지날 때마다 등록된 콜백 함수를 호출하는 함수.<br>
 - clearTimeout(): 함수를 호출한 결과로 반환된 ID를 인자로 받아 예약되어 있던 함수 호출을 취소하는 함수.<br>
 - clearInterval(): setInterval() 함수를 호출한 결과로 반환된 ID를 인자로 받아 주기적으로 호출되던 함수 호출을 취소하는 함수.<br><br><br>
@@ -28,11 +31,11 @@ add(3,5);
 - 폼 이벤트(Form Event): HTML 문서의 폼 엘리먼트에 변화가 생겼거나 제출(submit) 버튼 등이 눌렸을 때 발생하는 이벤트.<br>
 - 윈도 이벤트(Window Event): 페이지가 모두 로드되었을 때 발생하는 이벤트.<br>
 - 마우스 이벤트(Mouse Event): 사용자가 마우스를 조작했을 때 발생하는 이벤트.<br>
-- 키 이벤트(Key Event): 사용자가 키보드를 조작했을 때 발생하는 이벤트.
+- 키 이벤트(Key Event): 사용자가 키보드를 조작했을 때 발생하는 이벤트.<br>
 
 
-addEventListener(): 다른 이벤트 핸들러를 덮어쓰지 X -> 이벤트 핸들러를 여러 개 추가 가능.
-removeEventListener(): 이벤트 핸들러를 삭제.
+    addEventListener(): 다른 이벤트 핸들러를 덮어쓰지 X -> 이벤트 핸들러를 여러 개 추가 가능.<br>
+    removeEventListener(): 이벤트 핸들러를 삭제.
 
 클로저: 자바스크립트의 함수 + 함수가 선언될 때의 환경
 // 정보 은닉과 캡슐화 가능해서 사용?
@@ -126,7 +129,7 @@ function 클래스이름() {
 }
 ```
 
-# 네트워킹
+## 네트워킹
 ---
 
 > Ajax(Asynchronous Javascript and XML)
